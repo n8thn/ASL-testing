@@ -55,7 +55,7 @@ mask2cidr() {
 
 do_dhcpcd_yn() {
 #$DPKG_QUERY -l | grep dhcpcd > /dev/null
-systemctl status dhcpcd > /dev/null
+systemctl status dhcpcd > /dev/null 2>&1
 if [ $? = 0 ]; then
 DHCPCD_YN=YES
 else
