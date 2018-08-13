@@ -1039,7 +1039,7 @@ echo "do_set_black_white_extensions_conf" >> $logfile
 cat $CONFIGS/extensions.conf | grep blacklist > /dev/null
 if [ $? = 1 ]; then
 echo '' >> $CONFIGS/extensions.conf
-echo '# added by asl-menu' >> $CONFIGS/extensions.conf
+echo ';added by asl-menu' >> $CONFIGS/extensions.conf
 echo '[blacklist]' >> $CONFIGS/extensions.conf
 echo 'exten => _XXXX!,1,NoOp(${CALLERID(num)})' >> $CONFIGS/extensions.conf
 echo 'exten => _XXXX!,n,GotoIf($[${DB_EXISTS(blacklist/${CALLERID(num)})}]?blocked)' >> $CONFIGS/extensions.conf
@@ -1050,7 +1050,7 @@ fi
 cat $CONFIGS/extensions.conf | grep whitelist > /dev/null
 if [ $? = 1 ]; then
 echo '' >> $CONFIGS/extensions.conf
-echo '# added by asl-menu' >> $CONFIGS/extensions.conf
+echo ';added by asl-menu' >> $CONFIGS/extensions.conf
 echo '[whitelist]' >> $CONFIGS/extensions.conf
 echo 'exten => _XXXX!,1,NoOp(${CALLERID(num)})' >> $CONFIGS/extensions.conf
 echo 'exten => _XXXX!,n,NoOp(${IAXPEER(CURRENTCHANNEL)})' >> $CONFIGS/extensions.conf
