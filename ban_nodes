@@ -2,6 +2,7 @@
 # by n8thn
 # build date August 2, 2017
 # revised January 2018  update to prevent band_nodes from writing to rpt_extnodes-temp at the same time as rc.updatenodeslist
+# cleaned layout 20190312
 ##################################
 #
 # run this script with option ' install ' once then it will monitor the rpt_extnodes files for changes and continue to ban node list
@@ -36,7 +37,7 @@
 
 if [ "$1" = "install" ]; then
         echo "Creating $conffile for you to edit"
-sleep 2
+	sleep 2
         echo "#!/bin/bash" > $conffile
         echo "#add nodes on each new line starting with the FOURTH line of the file" >> $conffile
         echo "#must contain at least one node. can be a false node like 1998." >> $conffile
@@ -103,21 +104,21 @@ done
 LTIME=`stat -c %Z /tmp/rpt_extnodes-temp`
 # begin continual loop.
 while true; do
-   ATIME=`stat -c %Z /tmp/rpt_extnodes-temp`
+	ATIME=`stat -c %Z /tmp/rpt_extnodes-temp`
 
-   if [[ "$ATIME" != "$LTIME" ]]
-   then
-        echo "rpt_extnodes-temp was modified"
-        echo ".......Block IP's is set to $BLOCKIP"
-        echo ""
+	if [[ "$ATIME" != "$LTIME" ]]
+	then
+	        echo "rpt_extnodes-temp was modified"
+	        echo ".......Block IP's is set to $BLOCKIP"
+	        echo ""
 ###################################################################################################
-        echo "Checking if updatenodeslist is done writing file"
-        FILE=/tmp/rpt_extnodes-temp
+	        echo "Checking if updatenodeslist is done writing file"
+	        FILE=/tmp/rpt_extnodes-temp
 
         while [ -n "$(lsof "$FILE")" ]
         do
-          echo "file in use, sleeping"
-          sleep 1
+	          echo "file in use, sleeping"
+	          sleep 1
         done
         echo "updatenodeslist is done writing /tmp/ext_nodeslist-temp"
 ###################################################################################################
@@ -134,34 +135,34 @@ while true; do
                         touch /tmp/nodeIPtoban.tmp
                 fi
         while read nodenumber; do
-        grep "$nodenumber" "$sourcefile" | grep -Eo "([0-9]{1,3}\.){3}[0-9]{1,3}" | uniq >> /tmp/nodeIPtoban.tmp
-        sleep .25
-        echo "$nodenumber IP added to nodeIPtoban.tmp file"
+	        grep "$nodenumber" "$sourcefile" | grep -Eo "([0-9]{1,3}\.){3}[0-9]{1,3}" | uniq >> /tmp/nodeIPtoban.tmp
+	        sleep .25
+	        echo "$nodenumber IP added to nodeIPtoban.tmp file"
         done < /tmp/nodestoban
         # if no IP's to ban. skip.
         filesize=$(wc -c < /tmp/nodeIPtoban.tmp)
         minfilesize=8
                 if [ $filesize -ge $minfilesize ]; then
-                echo "removing any duplicate IP's from /tmp/nodeIPtoban.tmp to ban"
-                sort -u /tmp/nodeIPtoban.tmp > /tmp/nodeIPtoban
-                sleep 1
-                echo ".......Adding chain ban-nodes to iptables"
-                iptables -N ban-nodes
-                echo ".......Adding the nodes to ban IP's to the iptables"
-                # remove blank lines from file /tmp/nodeIPtoban
-                sed -i "/^ *$/d" /tmp/nodeIPtoban
-                while read IP; do
-                        iptables -A ban-nodes -s $IP -j DROP
-                        echo "adding $IP to iptables banned"
-                done < /tmp/nodeIPtoban
+	                echo "removing any duplicate IP's from /tmp/nodeIPtoban.tmp to ban"
+	                sort -u /tmp/nodeIPtoban.tmp > /tmp/nodeIPtoban
+	                sleep 1
+	                echo ".......Adding chain ban-nodes to iptables"
+	                iptables -N ban-nodes
+	                echo ".......Adding the nodes to ban IP's to the iptables"
+	                # remove blank lines from file /tmp/nodeIPtoban
+	                sed -i "/^ *$/d" /tmp/nodeIPtoban
+	                while read IP; do
+	                        iptables -A ban-nodes -s $IP -j DROP
+	                        echo "adding $IP to iptables banned"
+	                done < /tmp/nodeIPtoban
                         if [ "$logging" = "yes" ]; then
-                        echo "For history of IP addresses banned view the $runfile file"
-                        echo "$(date +%Y-%m-%d.%H:%M:%S):List of node IP addresses banned on this pass" >> $runfile
-                        cat /tmp/nodeIPtoban >> $runfile
+	                        echo "For history of IP addresses banned view the $runfile file"
+	                        echo "$(date +%Y-%m-%d.%H:%M:%S):List of node IP addresses banned on this pass" >> $runfile
+	                        cat /tmp/nodeIPtoban >> $runfile
                         fi
                 echo "All Done"
                 else
-                echo "No IP's to ban"
+	                echo "No IP's to ban"
                 fi
                 #clean up a bit
                 rm -f /tmp/nodeIPtoban.tmp
@@ -172,21 +173,21 @@ while true; do
         sed -i "/^ *$/d" /tmp/nodestoban
         # removes banned node numbers from BOTH rpt_extnode files
         while read nodenumber; do
-        echo "removing $nodenumber if exist from $sourcefile"
-        /bin/sed -i "/$nodenumber/d" /tmp/rpt_extnodes-temp
+	        echo "removing $nodenumber if exist from $sourcefile"
+	        /bin/sed -i "/$nodenumber/d" /tmp/rpt_extnodes-temp
         done < /tmp/nodestoban
         cp /tmp/rpt_extnodes-temp /var/lib/asterisk/rpt_extnodes
-                if [ "$logging" = "yes" ]; then
-                echo "For history of NODES banned view the $runfile file"
-                echo "$(date +%Y-%m-%d.%H:%M:%S):List of NODES banned on this pass" >> $runfile
-                cat /tmp/nodestoban >> $runfile
-                fi
+	if [ "$logging" = "yes" ]; then
+		echo "For history of NODES banned view the $runfile file"
+		echo "$(date +%Y-%m-%d.%H:%M:%S):List of NODES banned on this pass" >> $runfile
+		cat /tmp/nodestoban >> $runfile
+        fi
 # reset LTIME variable
 LTIME=`stat -c %Z /tmp/rpt_extnodes-temp`
 
 else
-echo "No change yet. Sleeping for 15"
-sleep 15
+	echo "No change yet. Sleeping for 15"
+	sleep 15
 fi
 # keep it clean. sed can be messy sometimes.....
 rm -f /tmp/sed*
