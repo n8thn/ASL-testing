@@ -2,7 +2,7 @@
 #AllStarLink Asterisk configure script
 #by N8THN Mar. 2019
 #VERSION 2.0
-#release date 20190312-1
+#release date 20190315-1
 /usr/bin/clear
 INTERACTIVE=True
 CONFIGS=/etc/asterisk
@@ -58,7 +58,7 @@ do_create_tmp_env() {
         CURRENT_REG=$(echo "$CURRENT_REG1" | awk -F'@' '{print $1}')
         CURRENT_REG_NODE=$(echo "$CURRENT_REG" | awk -F':' '{print $1}')
         CURRENT_REG_PSWD=$(echo "$CURRENT_REG" | awk -F':' '{print $2}')
-        CURRENT_CALLSIGN=$(grep '^idrecording =' /$TMP/rpt.conf.tmp | awk -F'=' '{print $2}' | sed 's/|\i//' | sed -e 's/^\(.\{9\}\).*/\1/')
+	CURRENT_CALLSIGN=$(grep '^idrecording =' /$TMP/rpt.conf.tmp | awk -F'=' '{print $2}' | sed 's/|\i//' | sed -e 's/^\(.\{9\}\).*/\1/'|sed 's/ //g')
         CURRENT_DUPLEX=$(grep '^duplex =' $TMP/rpt.conf.tmp | awk -F " " '{print $3}')
         NEWNODE="$CURRENT_NODE"
         NEWCALL="$CURRENT_CALLSIGN"
@@ -68,9 +68,9 @@ do_create_tmp_env() {
         NEWDUPLEX="$CURRENT_DUPLEX"
         CURRENTMNGRSECRET=$(grep 'secret' $TMP/manager.conf.tmp | awk -F '= ' '{print $2}' | grep -o '^\S*')
         NEWMNGRSECRET="$CURRENTMNGRSECRET"
-#	CURRENTIAXPORT=$(grep 'bindport' $TMP/iax.conf.tmp|awk -F '= ' '{print $2}'|awk -F ';' '{print $1}')
-	CURRENTIAXPORT=$(grep 'bindport' $TMP/iax.conf.tmp|awk -F '= ' '{print $2}'|awk -F ';' '{print $1}'|sed -E 's/^[[:space:]]+//'|grep -v '^$')
-	NEWIAXPORT="$CURRENTIAXPORT"
+	CURRENTIAXPORT1=$(grep 'bindport' $TMP/iax.conf.tmp|awk -F '= ' '{print $2}'|awk -F ';' '{print $1}'|sed -E 's/^[[:space:]]+//'|grep -v '^$')
+        CURRENTIAXPORT=$(echo $CURRENTIAXPORT1|grep -Eo '[0-9]{1,5}')
+        NEWIAXPORT="$CURRENTIAXPORT"
 	echo "Start node configurations date/time is $DATEEXT" >> $logfile
 	echo "CURRENT_NODE var is $CURRENT_NODE" >> $logfile
 	echo "CURRENT_REG_PSWD var is $CURRENT_REG_PSWD" >> $logfile
@@ -158,6 +158,10 @@ do_rpt_node() {
 	sleep 1
 }
 
+do_rpt_iaxport() {
+	echo "doing do_rpt_iaxport" >> $logfile
+
+}
 do_extensions_node() {
 	# changes the NODE variable at top of extensions.conf to the new node number
 	echo "doing do_extensions_node" >> $logfile
@@ -380,12 +384,15 @@ do_iax_node() {
         	sed -i 's/^[ \t]*;[ \t]*register[ \t]*=/register =/g' $TMP/iax.conf.tmp
         	sed -i "s/$CURRENT_REG_NODE/$NEWNODE/g" $TMP/iax.conf.tmp
         	sed -i "s/$CURRENT_REG_PSWD/$NEWPSWD/g" $TMP/iax.conf.tmp
+		sed -i "s/$NEWNODE[ \t]=[ \t]radio@127.0.0.1:$CURRENTIAXPORT/$NEWNODE = radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
         	AST_RESTART=1
 	else
 		whiptail --msgbox "Private node number being used diabling IAX registration" 20 60 2
 		sed -i "s/$CURRENT_REG_NODE/$NEWNODE/g" $TMP/iax.conf.tmp
                 sed -i "s/$CURRENT_REG_PSWD/$NEWPSWD/g" $TMP/iax.conf.tmp
 		sed -i 's/^register/;&/' $TMP/iax.conf.tmp
+		sed -i "s/$NEWNODE[ \t]=[ \t]radio@127.0.0.1:$CURRENTIAXPORT/$NEWNODE = radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
+		AST_RESTART=1
 	fi
 	# setting iax port
 	whiptail --msgbox "Setting IAX port number used in iax.conf for $NEWNODE" 20 60 2
@@ -432,11 +439,12 @@ for more information \
 do_config_list() {
 whiptail --msgbox "\
 Please review settings before saving.
-Node number to be used $NEWNODE
-Registration password $NEWPSWD
-Call sign $NEWCALL
-Radio interface type $NEWIFACE
-Manager password $NEWMNGRSECRET
+Node number to be used: $NEWNODE
+Registration password: $NEWPSWD
+IAX port number: $NEWIAXPORT
+Call sign: $NEWCALL
+Radio interface type: $NEWIFACE
+Manager password: $NEWMNGRSECRET
 
 If you did not configure echolink then ignore these values.
 Echolink call sign: $ECHOCALLSIGN
@@ -618,7 +626,7 @@ do_quick_set_menu() {
 	"N4 Radio Interface" "Node Radio Interface type $NEWIFACE" \
 	"N5 Duplex type" "Current duplex type is $NEWDUPLEX" \
 	"N6 Asterisk-secret" "Change Asterisk manager.conf password" \
-	"N7 IAX port" "IAX port used: 4569 is standard" \
+	"N7 IAX port" "Current IAX port $CURRENTIAXPORT" \
 	"N9 SAVE" "Save this configuration" \
 	3>&1 1>&2 2>&3)
 	RETA=$?
@@ -632,7 +640,7 @@ do_quick_set_menu() {
         	N4\ *) do_interface_type ;;
         	N5\ *) do_new_duplex ;;
         	N6\ *) do_mngr_secret ;;
-		N7\ *) NEWIAXPORT=$(whiptail --inputbox "Current IAX port $CURRENTIAXPORT: New IAX port number" 8 78 "$NEWIAXPORT" --title "IAX port" 3>&1 1>&2 2>&3) ;;
+		N7\ *) NEWIAXPORT=$(whiptail --inputbox "Current IAX port $CURRENTIAXPORT: New IAX port number" 8 78 "$NEWIAXPORT" --title "Standard port number to use is: 4569" 3>&1 1>&2 2>&3) ;;
         	N9\ *) do_save_newnode_newcall_newpswd ;;
         	*) whiptail --msgbox "Whoooops, script error: unrecognized option" 20 60 1 ;;
 		esac || whiptail --msgbox "There was an error running option $FUNA" 20 60 1
