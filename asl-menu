@@ -826,6 +826,7 @@ if [ "$ANSWER" = "0" ]; then
         whiptail --msgbox "asl-menu already starts for user $REALID at login." 20 60 2
         fi
 else
+	sed -i '/exit/c\' /home/$REALID/.bashrc
         sed -i '/asl-menu/c\' /home/$REALID/.bashrc
         whiptail --msgbox "the asl-menu autostart at login has been disabled\nYou may run the asl-menu script by typing sudo /usr/local/sbin/asl-menu" 20 60 2
 fi
@@ -1185,6 +1186,7 @@ RET=0
       "08 " "System Security Menu" \
       "09 " "System Diagnostics Menu" \
       "10 " "Network Information" \
+      "XX " "Linux CLI (root shell)" \
       "00 " "Information" \
       3>&1 1>&2 2>&3)
     RET=$?
@@ -1202,6 +1204,7 @@ RET=0
         08\ *) do_sys_security_menu ;;
         09\ *) do_sys_diags_menu ;;
 	10\ *) do_network_info ;;
+	XX\ *) /bin/bash ;;
         00\ *) info_main_menu ;;
         *) whiptail --msgbox "Whoooops, script error: unrecognized option" 20 60 1 ;;
       esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1

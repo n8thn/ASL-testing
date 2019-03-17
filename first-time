@@ -3,7 +3,7 @@
 # original by N4IRS 07/26/2017
 # mod4whip by N8THN
 # V1.0 Feb 23
-#release date 20180323-1
+#release date 20190316-1
 
 do_check_if_firsttime() {
 if [ -e /etc/asterisk/firsttime ]; then
@@ -103,27 +103,6 @@ do_fs_resize() {
                 fi
 }
 
-do_use_aslmenu() {
-# use asl-menu on login for user account
-	ANSWER=1
-	REALID=$(who am i | awk '{print $1}')
-	if (whiptail --title "asl-menu at login" --yesno "Would you like to start the asl-menu script\nat login by default for user: $REALID?" --defaultno 20 80 2 3>&1 1>&2 2>&3) then
-	ANSWER=$?
-	fi
-	if [ "$ANSWER" = "0" ]; then
-	        cat /home/$REALID/.bashrc |grep asl-menu > /dev/null
-	        if [ $? = "1" ]; then
-	        echo "sudo /usr/local/sbin/asl-menu" >> /home/$REALID/.bashrc
-	        whiptail --msgbox "asl-menu will start at login for user $REALID" 20 60 2
-	        else
-	        whiptail --msgbox "asl-menu already starts for user $REALID at login." 20 60 2
-	        fi
-	else
-	        sed -i '/asl-menu/c\' /home/$REALID/.bashrc
-	        whiptail --msgbox "the asl-menu autostart at login has been disabled\nYou may run the asl-menu script by typing sudo /usr/local/sbin/asl-menu" 20 60 2
-	fi
-}
-
 do_finish() {
                 whiptail --msgbox "Setup is complete.\nWe will reboot once you click <OK>" 20 80 2
                 rm /etc/asterisk/firsttime
@@ -141,7 +120,6 @@ do_set_timezone
 do_set_host
 do_net_setup
 do_node_setup
-#do_use_aslmenu
 do_finish
 
 
