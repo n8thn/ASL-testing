@@ -40,8 +40,10 @@ ANSWER=1
 
 do_set_mypasswd() {
         REALID=$(who am i | awk '{print $1}')
-        whiptail --title "User: $REALID password" --msgbox "Welcome to AllStarLink first-time setup. \
-        \nThis script will walk you through a few of the basic system setup options. \
+        whiptail --title "User: $REALID password" --msgbox \
+	"Welcome to AllStarLink first-time setup \
+        \nThis script will walk you through a few \
+	\nof the basic system setup options \
         \n\nFor system security we will change the password from \
         \nthe default password included in the image \
         \nWe will do this now.\n\nUser: $REALID" 20 80 2
