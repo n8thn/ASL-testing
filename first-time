@@ -2,8 +2,8 @@
 
 # original by N4IRS 07/26/2017
 # mod4whip by N8THN
-# V1.0 Feb 23
-#release date 20190316-1
+# V1.1 Mar 14
+#release date 20190314-1
 
 do_check_if_firsttime() {
 if [ -e /etc/asterisk/firsttime ]; then
@@ -39,23 +39,20 @@ ANSWER=1
 }
 
 do_set_mypasswd() {
-	ANSWER=1
-	REALID=$(who am i | awk '{print $1}')
-	if (whiptail --title "User: $REALID password" --yesno "Welcome to AllStarLink first-time setup. \
-	\nThis script will walk you through a few of the basic system setup options. \
-	\n\nIt is highly recommended to change the users password from \
-	\nthe default password included in the image \
-	\nWould you like to change your password?\n\nUser: $REALID" 20 80 2) then
-	ANSWER=$?
-	fi
-	if [ "$ANSWER" = "0" ]; then
-	        while ! passwd $REALID
-	        do
-	                whiptail --msgbox "ERROR: " 20 80 2
-	        done
-	fi
+        REALID=$(who am i | awk '{print $1}')
+        whiptail --title "User: $REALID password" --msgbox "Welcome to AllStarLink first-time setup. \
+        \nThis script will walk you through a few of the basic system setup options. \
+        \n\nFor system security we will change the password from \
+        \nthe default password included in the image \
+        \nWe will do this now.\n\nUser: $REALID" 20 80 2
+        clear
+                while ! passwd $REALID
+                do
+                        whiptail --msgbox "ERROR: Password does not match" 10 80 2
+                        clear
+                done
+        whiptail --msgbox "Password successfully changed" 10 60 2
 }
-
 
 do_set_timezone() {
                         whiptail --msgbox "By default, the time zone is set to: $(cat /etc/timezone) \
