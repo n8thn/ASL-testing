@@ -4,7 +4,7 @@
 #
 #by n8thn
 #V1.0
-#release date 201980311
+#release date 20190311
 #
 if [ `whoami` != root ]; then
         whiptail --msgbox "This script must be run as root or with sudo" 20 60 2

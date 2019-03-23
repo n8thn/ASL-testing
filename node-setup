@@ -475,7 +475,7 @@ do_finish() {
 		sleep 1
 		do_tmp_to_live
 		if [ $AST_RESTART -eq 1 ]; then
-			whiptail --msgbox "Asterisk reload is required for changes to take effect \n Use (service asterisk restart) from command line" 20 60 2
+			whiptail --msgbox "Asterisk reload is required for changes to take effect \n" 20 60 2
 			#service asterisk restart
 		fi
 	fi
@@ -691,6 +691,3 @@ do_create_tmp_env
 do_echolink_import
 # start at the main menu page
 do_main_menu2
-
-
-
