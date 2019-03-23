@@ -2,7 +2,7 @@
 # by n8thn
 # build date August 2, 2017
 # revised January 2018  update to prevent band_nodes from writing to rpt_extnodes-temp at the same time as rc.updatenodeslist
-# cleaned layout 20190312
+# cleaned layout 20190311
 ##################################
 #
 # run this script with option ' install ' once then it will monitor the rpt_extnodes files for changes and continue to ban node list

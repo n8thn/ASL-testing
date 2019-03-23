@@ -87,6 +87,7 @@ do_create_backups() {
 
 do_tmp_to_live() {
 	echo "doing do_tmp_to_live" >> $logfile
+	do_savenode
         mv -f $TMP/extensions.conf.tmp $CONFIGS/extensions.conf
         mv -f $TMP/echolink.conf.tmp $CONFIGS/echolink.conf
         mv -f $TMP/iax.conf.tmp $CONFIGS/iax.conf
@@ -384,14 +385,14 @@ do_iax_node() {
         	sed -i 's/^[ \t]*;[ \t]*register[ \t]*=/register =/g' $TMP/iax.conf.tmp
         	sed -i "s/$CURRENT_REG_NODE/$NEWNODE/g" $TMP/iax.conf.tmp
         	sed -i "s/$CURRENT_REG_PSWD/$NEWPSWD/g" $TMP/iax.conf.tmp
-		sed -i "s/$NEWNODE[ \t]=[ \t]radio@127.0.0.1:$CURRENTIAXPORT/$NEWNODE = radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
+		sed -i "s/radio@127.0.0.1:$CURRENTIAXPORT/radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
         	AST_RESTART=1
 	else
 		whiptail --msgbox "Private node number being used diabling IAX registration" 20 60 2
 		sed -i "s/$CURRENT_REG_NODE/$NEWNODE/g" $TMP/iax.conf.tmp
                 sed -i "s/$CURRENT_REG_PSWD/$NEWPSWD/g" $TMP/iax.conf.tmp
 		sed -i 's/^register/;&/' $TMP/iax.conf.tmp
-		sed -i "s/$NEWNODE[ \t]=[ \t]radio@127.0.0.1:$CURRENTIAXPORT/$NEWNODE = radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
+		sed -i "s/radio@127.0.0.1:$CURRENTIAXPORT/radio@127.0.0.1:$NEWIAXPORT/" $TMP/rpt.conf.tmp
 		AST_RESTART=1
 	fi
 	# setting iax port
@@ -415,7 +416,7 @@ PASSWORD=$NEWPSWD
 ENABLE=1
 _EOF
 
-	whiptail --msgbox "Finished building savenode configuration file \nUsing node number $NEWNODE and registration password $NEWPSWD" 20 60 2
+#	whiptail --msgbox "Finished building savenode configuration file \nUsing node number $NEWNODE and registration password $NEWPSWD" 20 60 2
 }
 
 do_not_set_yet() {
@@ -474,7 +475,7 @@ do_finish() {
 		sleep 1
 		do_tmp_to_live
 		if [ $AST_RESTART -eq 1 ]; then
-			whiptail --msgbox "Asterisk reload is required for changes to take effect \n Use (service asterisk restart) from command line" 20 60 2
+			whiptail --msgbox "Asterisk reload is required for changes to take effect \n" 20 60 2
 			#service asterisk restart
 		fi
 	fi
@@ -626,7 +627,7 @@ do_quick_set_menu() {
 	"N4 Radio Interface" "Node Radio Interface type $NEWIFACE" \
 	"N5 Duplex type" "Current duplex type is $NEWDUPLEX" \
 	"N6 Asterisk-secret" "Change Asterisk manager.conf password" \
-	"N7 IAX port" "Current IAX port $CURRENTIAXPORT" \
+	"N7 IAX port" "Current IAX port $NEWIAXPORT" \
 	"N9 SAVE" "Save this configuration" \
 	3>&1 1>&2 2>&3)
 	RETA=$?
@@ -659,9 +660,8 @@ do_main_menu2() {
 	FUN=$(whiptail --title "AllStarLink Asterisk" --menu "Node configure Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --ok-button Select --cancel-button Exit \
 	"A1 Initial Node Setup" "Node number, password, call sign" \
 	"A2 Edit Echolink" "Enable and Edit Echolink configuration" \
-	"A3 Enable savenode" "Enables savenode.conf for node $NEWNODE" \
-	"A4 Quick backup" "Copy existing files to folder $CONFIGS/$MONTHDAY" \
-	"A5 Review" "Review of configuration settings" \
+	"A3 Quick backup" "Copy existing files to folder $CONFIGS/$MONTHDAY" \
+	"A4 Review" "Review of configuration settings" \
 	"A0 About" "AllStarLink Asterisk" \
 	"X "	" " \
 	"AZ SAVE" "Save configuration and make it live" \
@@ -673,9 +673,8 @@ do_main_menu2() {
 		case "$FUN" in
         	A1\ *) do_quick_set_menu ;;
         	A2\ *) do_echolink_edit_menu ;;
-        	A3\ *) do_savenode ;;
-        	A4\ *) do_create_backups ;;
-        	A5\ *) do_config_list ;;
+        	A3\ *) do_create_backups ;;
+        	A4\ *) do_config_list ;;
         	A0\ *) do_about ;;
 		X\ *) do_about ;;
         	AZ\ *) do_finish ;;
@@ -692,6 +691,3 @@ do_create_tmp_env
 do_echolink_import
 # start at the main menu page
 do_main_menu2
-
-
-
