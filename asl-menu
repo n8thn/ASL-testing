@@ -3,7 +3,7 @@
 #V2.0
 #2018 March
 #By N8THN
-#release date 20190316-1
+#release date 20190322-1
 clear
 
 # define variables
@@ -71,6 +71,7 @@ ASTDN=/usr/local/sbin/astdn.sh
 SAVENODE=/usr/local/sbin/save-node
 RESTORENODE=/usr/local/sbin/restore-node
 FIRSTTIME=/usr/local/sbin/first-time
+NETSETUP=/usr/local/sbin/net-setup
 
 MONTHDAY=$(date +%Y-%m-%d)
 DATEEXT=$(date +%Y-%m-%d.%H:%M)
@@ -173,7 +174,8 @@ USBRADIOMODULE=NO
 echo "USBRADIOMODULE=NO" >> $logfile
 fi
 # is rxchannel
-grep '^rxchannel[ \t]*=[ \t]*radio' $CONFIGS/rpt.conf > /dev/null
+#grep '^rxchannel[ \t]*=[ \t]*radio' $CONFIGS/rpt.conf > /dev/null
+grep '^rxchannel[ \t]*=[ \t]*Radio' $CONFIGS/rpt.conf > /dev/null
 if [ $? -eq 0 ]; then
 RXCHUSBRADIO=YES
 else
@@ -1273,7 +1275,8 @@ RET=0
       "E " "Install ASL Addons Menu" \
       "F " "Change CPU performance (overclocking)" \
       "G " "Use asl-menu at login" \
-      "H " "Information" \
+      "H " "Networking configuration" \
+      "I " "Information" \
       3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ]; then
@@ -1287,7 +1290,8 @@ RET=0
         E\ *) do_addon_packages_menu ;;
         F\ *) do_cpu_clocking_menu ;;
         G\ *) do_use_aslmenu ;;
-        H\ *) info_OS_menu ;;
+	H\ *) $NETSETUP ;;
+        I\ *) info_OS_menu ;;
         *) whiptail --msgbox "Whoooops, script error: unrecognized option" 20 60 1 ;;
       esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
     else
