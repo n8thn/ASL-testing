@@ -12,7 +12,10 @@ if [ `whoami` != root ]; then
 fi
 
 logfile=/tmp/allmon-ssword.log
-PASSWORDFILE=/var/www/html/allmon/.htpasswd
+WEBROOT=/var/www/html
+#PASSWORDFILE=/var/www/html/allmon/.htpasswd
+PASSWORDFILE=$WEBROOT/allmon2/.htpasswd
+
 echo "" > $logfile
 
 calc_wt_size() {
