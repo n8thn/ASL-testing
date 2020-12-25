@@ -32,13 +32,13 @@ HASNETIF=$(grep -c 'net_if=' /etc/asterisk/rpt.conf)
 if [ $HASNETIF = "0" ]; then
 	echo "does not have net_if in config" >> $logfile
 else
-	CURRENT_NET_IF=$(grep '^net_if' /etc/asterisk/rpt.conf |awk -F '=' '{print $2}' |awk -F ';' '{print $1}')
+	CURRENT_NET_IF=$(grep '^net_if' /etc/asterisk/rpt.conf |awk -F '=' '{print $2}' |awk -F ';' '{print $1}'|xargs)
 	if [ "$CURRENT_NET_IF" = "$ETH" ]; then
 		#already set correctly
 		echo "net_if variable already set correctly" >> $logfile
 	else
 		echo "setting net_if variable to $ETH in rpt.conf" >> $logfile
-		sed -i '/^net_if=/s/.*/net_if=$ETH		;set to custom statpost_url if statpost=2 (above)/' /etc/asterisk/rpt.conf
+		sed -i "/^net_if=/s/.*/net_if=$ETH		;set to custom statpost_url if statpost=2 (above)/" /etc/asterisk/rpt.conf
 	fi
 fi
 
