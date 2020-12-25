@@ -1,9 +1,9 @@
 #!/bin/bash
 # Origianl by N4IRS
 # mod4whip N8THN
-# V2.1 Apr 2018
+# V2.2 Dec 2020
 
-# release date 20190820
+# release date 20201223
 
 # Network interface setup script
 #
@@ -15,6 +15,7 @@ RESOLVPATH=/etc/resolv.conf
 DPKG_QUERY=$(which dpkg-query)
 ETHS=$(ip -o link show | awk -F': ' '{print $2}' | grep ^en)
 MULTI=$(ip -o link show | awk -F': ' '{print $2}' | grep -c ^en)
+logfile=/tmp/net-setup.log
 
 if [ $MULTI -gt 1 ]; then
 	MULTIETH="YES"
@@ -24,7 +25,21 @@ fi
 
 ETH=$(ip -o link show | awk -F': ' '{print $2}' | grep ^en)
 if [ $? = "1" ]; then
-        ETH=eth0
+        ETH=$(ip -o link show | awk -F': ' '{print $2}' |grep ^eth)
+fi
+
+HASNETIF=$(grep -c 'net_if=' /etc/asterisk/rpt.conf)
+if [ $HASNETIF = "0" ]; then
+	echo "does not have net_if in config" >> $logfile
+else
+	CURRENT_NET_IF=$(grep '^net_if' /etc/asterisk/rpt.conf |awk -F '=' '{print $2}' |awk -F ';' '{print $1}'|xargs)
+	if [ "$CURRENT_NET_IF" = "$ETH" ]; then
+		#already set correctly
+		echo "net_if variable already set correctly" >> $logfile
+	else
+		echo "setting net_if variable to $ETH in rpt.conf" >> $logfile
+		sed -i "/^net_if=/s/.*/net_if=$ETH		;set to custom statpost_url if statpost=2 (above)/" /etc/asterisk/rpt.conf
+	fi
 fi
 
 

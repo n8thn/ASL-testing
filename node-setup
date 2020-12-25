@@ -1,8 +1,9 @@
 #!/bin/sh
 #AllStarLink Asterisk configure script
 #by N8THN Mar. 2019
-#VERSION 2.0
-#release date 20190820-1
+#VERSION 2.1
+#release date 20201223
+
 /usr/bin/clear
 INTERACTIVE=True
 CONFIGS=/etc/asterisk
@@ -135,15 +136,21 @@ do_rpt_duplex() {
 
 do_rpt_statpost() {
 	# uncomments the statpost command in rpt.conf
-	echo "doing do_rpt_statpost" >> $logfile
-	if [ "$NEWNODE" -gt "$PRIVATE_NODES" ];then
-		whiptail --msgbox "Enabling the Statpost program in rpt.conf" 20 60 2
-		# Used the $ in place of the /
-		sed -i 's$[ \t]*;[ \t]*statpost_program[ \t]*=[ \t]*/usr/bin/wget$statpost_program = /usr/bin/wget$g' $TMP/rpt.conf.tmp
-		sed -i "0,/statpost_url/ s/^[ \t]*;[ \t]*statpost_url/statpost_url/" $TMP/rpt.conf.tmp
+	cat /etc/asterisk/rpt.conf |grep "statpost_override=" > /dev/null
+	if [ $? = "1" ]; then
+		echo "doing do_rpt_statpost asl-1.02 version" >> $logfile
+		# statpost is enabled by default in ASL-1.02, nothing to change.
 	else
-		whiptail --msgbox "Private node number being used disabling statpost program" 20 60 2
-		sed -i 's/^statpost/;&/' $TMP/rpt.conf.tmp
+		echo "doing do_rpt_statpost" >> $logfile
+		if [ "$NEWNODE" -gt "$PRIVATE_NODES" ];then
+			whiptail --msgbox "Enabling the Statpost program in rpt.conf" 20 60 2
+			# Used the $ in place of the /
+			sed -i 's$[ \t]*;[ \t]*statpost_program[ \t]*=[ \t]*/usr/bin/wget$statpost_program = /usr/bin/wget$g' $TMP/rpt.conf.tmp
+			sed -i "0,/statpost_url/ s/^[ \t]*;[ \t]*statpost_url/statpost_url/" $TMP/rpt.conf.tmp
+		else
+			whiptail --msgbox "Private node number being used disabling statpost program" 20 60 2
+			sed -i 's/^statpost/;&/' $TMP/rpt.conf.tmp
+		fi
 	fi
 }
 
