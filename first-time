@@ -2,8 +2,9 @@
 
 # original by N4IRS 07/26/2017
 # mod4whip by N8THN
-# V1.1 Mar 14
-#release date 20190314-1
+# contributor: KM4NNO
+# V1.2 Dec 31 , 2020
+#release date 20201231-1
 
 do_check_if_firsttime() {
 if [ -e /etc/asterisk/firsttime ]; then
@@ -41,7 +42,7 @@ ANSWER=1
 do_set_mypasswd() {
         REALID=$(who am i | awk '{print $1}')
         whiptail --title "User: $REALID password" --msgbox \
-	"Welcome to AllStarLink first-time setup \
+	"Welcome to PTTLink first-time setup \
         \nThis script will walk you through a few \
 	\nof the basic system setup options \
         \n\nFor system security we will change the password from \
@@ -87,7 +88,7 @@ do_net_setup() {
 do_node_setup() {
                 if [ -x /usr/local/sbin/node-setup ]; then
                         whiptail --msgbox "You will now move on to \
-			the ASL node setup program for AllStarLink" 10 80 2
+			the PTTLink node setup program for PTTLink" 10 80 2
 			/usr/local/sbin/node-setup
                 fi
 }
